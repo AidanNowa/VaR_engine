@@ -7,3 +7,4 @@ pandas-datareader   # Stooq fallback when Yahoo misbehaves
 arch                # reconciliation only — hand-rolled GARCH comes first
 pytest
 jupyter
+pyarrow
