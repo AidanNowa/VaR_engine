@@ -1,4 +1,4 @@
-#Loading, cleaning, return construction.
+"""Loading, cleaning, return construction."""
 import os
 import pandas as pd
 import yfinance as yf
@@ -33,7 +33,7 @@ def _load_one(ticker_symbol, cache_dir, force_refresh) -> pd.Series:
 
 
 def load_prices(tickers, start, end=None, cache_dir=CACHE_PATH, force_refresh=False) -> pd.DataFrame:
-    #Adjusted closes. One colum per ticker, DatetimeIndex ascending
+    """#Adjusted closes. One colum per ticker, DatetimeIndex ascending"""
     prices = {}
     for ticker_symbol in tickers:
         historical_data = _load_one(ticker_symbol, cache_dir, force_refresh)
@@ -43,7 +43,7 @@ def load_prices(tickers, start, end=None, cache_dir=CACHE_PATH, force_refresh=Fa
     pre_drop_len = len(prices)
     prices = prices.dropna()
     dropped_rows = pre_drop_len - len(prices)
-    logger.info(f"loaded {len(prices)} x {prices.shape[1]} tickers ({prices.index[0].date()} to {prices.index[-1].date()}); dropped {dropped_rows} of {pre_drop_len} incomplete rows {100 * dropped_rows / pre_drop_len:.2f}")
+    logger.info(f"loaded {len(prices)} x {prices.shape[1]} tickers ({prices.index[0].date()} to {prices.index[-1].date()}); dropped {dropped_rows} of {pre_drop_len} incomplete rows {100 * dropped_rows / pre_drop_len:.2f}%")
     return prices
 
 
