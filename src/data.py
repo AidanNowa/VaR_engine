@@ -1,8 +1,9 @@
 """Loading, cleaning, return construction."""
 import os
+import logging
 import pandas as pd
 import yfinance as yf
-import logging
+import numpy as np
 from pathlib import Path
 
 TICKERS = ["AAPL", "MSFT", "JPM", "JNJ", "XOM", "PG", "HD", "TLT", "EFA", "GLD"]
@@ -46,6 +47,12 @@ def load_prices(tickers, start, end=None, cache_dir=CACHE_PATH, force_refresh=Fa
     logger.info(f"loaded {len(prices)} x {prices.shape[1]} tickers ({prices.index[0].date()} to {prices.index[-1].date()}); dropped {dropped_rows} of {pre_drop_len} incomplete rows {100 * dropped_rows / pre_drop_len:.2f}%")
     return prices
 
+def log_returns(prices: pd.DataFrame) -> pd.DataFrame:
+    if not prices.index.is_monotonic_increasing:
+        raise ValueError("[ERROR] Dataframe is not monotonically increasing.")
+    log_prices = prices.apply(np.log).diff()
+    log_prices = log_prices[1:]
+    return log_prices
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -54,5 +61,9 @@ if __name__ == "__main__":
     print(prices.head())
     print("------------------------------------")
     print(prices.tail())
+    print("\n--------------Log Returns---------------")
+    log_prices = log_returns(prices)
+    print(f"Log Shape: {log_prices.shape}")
+    print(log_prices.head())
 
     
