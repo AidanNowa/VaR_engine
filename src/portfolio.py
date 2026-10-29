@@ -19,7 +19,6 @@ def make_weights(tickers, weights=None) -> pd.Series:
         raise ValueError("[ERROR] Negative weight entered!")
     
     weights_sum = weights.sum()
-    print(weights_sum)
     if weights_sum > 0.9999 and weights_sum < 1.0001:
         return weights
     raise ValueError("[ERROR] Inputted weights do not total to 1!")
@@ -53,13 +52,5 @@ if __name__ == "__main__":
     print(returns.idxmax())
     print("Min Dates")
     print(returns.idxmin())
-    # print(pd.DataFrame({
-    #     "worst":      returns.min().round(4),
-    #     "worst_date": returns.idxmin().date,
-    #     "best":       returns.max().round(4),
-    #     "best_date":  returns.idxmax().date,
-    #     "ann_vol":    (returns.std() * (252 ** 0.5)).round(3),
-    # }))
-    
     print("----------Portfolio Values----------")
     print(portfolio_values(prices, weights, 1000000))
