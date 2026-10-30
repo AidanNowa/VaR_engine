@@ -41,10 +41,34 @@ def correlation_by_period(returns, periods) -> dict[str, pd.DataFrame]:
 
     return period_corrs
 
-def average_pairwise_correlation(corr) -> float :
+def average_pairwise_correlation(corr) -> float:
     rows, cols = np.triu_indices(len(corr), k=1)
     return corr.values[rows, cols].mean()
 
+def leverage_effect(returns, horizon=5, quantile=0.05):
+    if not isinstance(returns, pd.Series):
+        raise ValueError("[ERROR] Inputted returns must be a single series!")
+    if horizon <= 2:
+        raise ValueError("[ERROR] Inputted horizon needs to be >= 2 !")
+    forward_realized_volatility = returns.rolling(horizon).std().shift(periods=-horizon)
+    low_mask = returns <= returns.quantile(quantile)
+    high_mask = returns >= returns.quantile(1-quantile)
+    fwd_low = forward_realized_volatility[low_mask].dropna()
+    fwd_high = forward_realized_volatility[high_mask].dropna()
+    low_mean = fwd_low.mean()
+    high_mean = fwd_high.mean()
+    out = {
+        "down_vol": low_mean,
+        "up_vol": high_mean,
+        "ratio": low_mean/high_mean,
+        "n_down": len(fwd_low),
+        "n_up": len(fwd_high),
+        "mean_abs_down": returns[low_mask].abs().mean(),
+        "mean_abs_up": returns[high_mask].abs().mean()
+    }
+    return pd.Series(out)
+    
+    
 
 
 if __name__ == "__main__":
@@ -69,7 +93,8 @@ if __name__ == "__main__":
             }
 
     corr = correlation_by_period(returns, periods)
-    print(average_pairwise_correlation(corr["calm"]))
-    print(average_pairwise_correlation(corr["covid"]))
+    print(f"Calm: {average_pairwise_correlation(corr["calm"])}")
+    print(f"COVID: {average_pairwise_correlation(corr["covid"])}")
 
+    print(leverage_effect(port_returns))
 
